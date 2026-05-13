@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CafeStock - Manajemen Stok Bahan Cafe</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo-area">
+                <i class="fas fa-mug-hot"></i>
+                <h2>CafeStock</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-page="stock">
+                    <i class="fas fa-boxes"></i>
+                    <span>Manajemen Stok</span>
+                </a>
+                <a href="#" class="nav-item" data-page="kategori">
+                    <i class="fas fa-tags"></i>
+                    <span>Kategori</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="top-bar">
+                <div class="welcome-text">
+                    <h1>Manajemen Stok Bahan Cafe</h1>
+                    <p>Kelola stok sayuran, beras, ayam, kecap & bahan lainnya</p>
+                </div>
+                <div class="stats-badge">
+                    <i class="fas fa-store"></i>
+                    <span>Cafe Stock Manager</span>
+                </div>
+            </div>
+
+            <!-- Dashboard Page -->
+            <div id="dashboardPage" class="page active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Bahan</h3>
+                            <p id="totalBahan">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Stok Menipis</h3>
+                            <p id="stokMenipis">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Kategori</h3>
+                            <p id="totalKategori">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-pie"></i> Statistik Stok per Kategori</h3>
+                    <canvas id="kategoriChart"></canvas>
+                </div>
+
+                <div class="recent-card">
+                    <h3><i class="fas fa-clock"></i> Bahan Terbaru</h3>
+                    <div id="recentList" class="recent-list"></div>
+                </div>
+            </div>
+
+            <!-- Stock Management Page -->
+            <div id="stockPage" class="page">
+                <!-- Form Tambah/Edit -->
+                <div class="form-card">
+                    <div class="form-header">
+                        <h2 id="formTitle"><i class="fas fa-plus-circle"></i> Tambah Bahan Baru</h2>
+                        <button type="button" class="btn-cancel" id="cancelEdit" style="display: none;">
+                            <i class="fas fa-times"></i> Batal
+                        </button>
+                    </div>
+                    <form id="stockForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><i class="fas fa-tag"></i> Nama Bahan</label>
+                                <input type="text" id="namaBahan" placeholder="Contoh: Beras Pandan Wangi" required>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-layer-group"></i> Kategori</label>
+                                <select id="kategori" required>
+                                    <option value="">Pilih Kategori</option>
+                                    <option value="Sayuran">🌿 Sayuran</option>
+                                    <option value="Beras">🍚 Beras</option>
+                                    <option value="Daging">🍗 Daging</option>
+                                    <option value="Bumbu">🧂 Bumbu & Kecap</option>
+                                    <option value="Minuman">🥤 Minuman</option>
+                                    <option value="Susu">🥛 Susu & Dairy</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><i class="fas fa-database"></i> Stok</label>
+                                <input type="number" id="stok" placeholder="Jumlah" required min="0">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-weight-hanging"></i> Satuan</label>
+                                <select id="satuan" required>
+                                    <option value="kg">Kilogram (kg)</option>
+                                    <option value="gram">Gram (g)</option>
+                                    <option value="liter">Liter (L)</option>
+                                    <option value="buah">Buah</option>
+                                    <option value="bungkus">Bungkus</option>
+                                    <option value="botol">Botol</option>
+                                    <option value="sachet">Sachet</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-euro-sign"></i> Harga per Satuan (Rp)</label>
+                            <input type="number" id="harga" placeholder="Contoh: 15000" required min="0">
+                        </div>
+                        
+                        <button type="submit" class="btn-submit" id="submitBtn">
+                            <i class="fas fa-save"></i> Simpan Bahan
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Search & Filter -->
+                <div class="search-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Cari bahan...">
+                    </div>
+                    <select id="filterKategori" class="filter-select">
+                        <option value="">Semua Kategori</option>
+                        <option value="Sayuran">🌿 Sayuran</option>
+                        <option value="Beras">🍚 Beras</option>
+                        <option value="Daging">🍗 Daging</option>
+                        <option value="Bumbu">🧂 Bumbu & Kecap</option>
+                        <option value="Minuman">🥤 Minuman</option>
+                        <option value="Susu">🥛 Susu & Dairy</option>
+                    </select>
+                </div>
+
+                <!-- Table Stock -->
+                <div class="table-container">
+                    <table class="stock-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Bahan</th>
+                                <th>Kategori</th>
+                                <th>Stok</th>
+                                <th>Satuan</th>
+                                <th>Harga</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stockTableBody">
+                            <tr>
+                                <td colspan="8" class="loading-text">
+                                    <i class="fas fa-spinner fa-spin"></i> Memuat data...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Kategori Page -->
+            <div id="kategoriPage" class="page">
+                <div class="kategori-grid">
+                    <div class="kategori-card" data-kategori="Sayuran">
+                        <i class="fas fa-carrot"></i>
+                        <h3>Sayuran</h3>
+                        <p id="countSayuran">0 bahan</p>
+                    </div>
+                    <div class="kategori-card" data-kategori="Beras">
+                        <i class="fas fa-bowl-food"></i>
+                        <h3>Beras</h3>
+                        <p id="countBeras">0 bahan</p>
+                    </div>
+                    <div class="kategori-card" data-kategori="Daging">
+                        <i class="fas fa-drumstick-bite"></i>
+                        <h3>Daging</h3>
+                        <p id="countDaging">0 bahan</p>
+                    </div>
+                    <div class="kategori-card" data-kategori="Bumbu">
+                        <i class="fas fa-pepper-hot"></i>
+                        <h3>Bumbu & Kecap</h3>
+                        <p id="countBumbu">0 bahan</p>
+                    </div>
+                    <div class="kategori-card" data-kategori="Minuman">
+                        <i class="fas fa-mug-saucer"></i>
+                        <h3>Minuman</h3>
+                        <p id="countMinuman">0 bahan</p>
+                    </div>
+                    <div class="kategori-card" data-kategori="Susu">
+                        <i class="fas fa-jug"></i>
+                        <h3>Susu & Dairy</h3>
+                        <p id="countSusu">0 bahan</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Konfirmasi Hapus -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-trash-alt" style="color: #f5576c;"></i>
+                <h3>Konfirmasi Hapus</h3>
+            </div>
+            <p>Apakah Anda yakin ingin menghapus bahan <strong id="deleteNama"></strong>?</p>
+            <div class="modal-buttons">
+                <button class="btn-cancel-modal" onclick="closeDeleteModal()">Batal</button>
+                <button class="btn-confirm" id="confirmDeleteBtn">Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { 
+    getFirestore, 
+    collection, 
+    addDoc, 
+    getDocs, 
+    updateDoc, 
+    deleteDoc, 
+    doc,
+    query,
+    orderBy,
+    where
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyAoa6XVwvLudjkyHxzF2Q8Xp61BEaG8_Ho",
+    authDomain: "insancemerlang-e829c.firebaseapp.com",
+    projectId: "insancemerlang-e829c",
+    storageBucket: "insancemerlang-e829c.firebasestorage.app",
+    messagingSenderId: "544747474491",
+    appId: "1:544747474491:web:be2b4a1553734a5c53961e"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const stockCollection = collection(db, "bahanMakanan");
+
+// Global Variables
+let currentEditId = null;
+let allStockData = [];
+let kategoriChart = null;
+
+// DOM Elements
+const stockForm = document.getElementById("stockForm");
+const stockTableBody = document.getElementById("stockTableBody");
+const searchInput = document.getElementById("searchInput");
+const filterKategori = document.getElementById("filterKategori");
+const formTitle = document.getElementById("formTitle");
+const submitBtn = document.getElementById("submitBtn");
+const cancelEditBtn = document.getElementById("cancelEdit");
+let currentDeleteId = null;
+
+// Navigation
+document.querySelectorAll(".nav-item").forEach(item => {
+    item.addEventListener("click", (e) => {
+        e.preventDefault();
+        const page = item.dataset.page;
+        
+        // Update active nav
+        document.querySelectorAll(".nav-item").forEach(nav => nav.classList.remove("active"));
+        item.classList.add("active");
+        
+        // Show page
+        document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+        document.getElementById(`${page}Page`).classList.add("active");
+        
+        // Refresh data
+        if (page === "dashboard") {
+            loadDashboard();
+        } else if (page === "stock") {
+            loadStockData();
+        } else if (page === "kategori") {
+            loadKategoriStats();
+        }
+    });
+});
+
+// Load Stock Data
+async function loadStockData() {
+    try {
+        const querySnapshot = await getDocs(query(stockCollection, orderBy("nama", "asc")));
+        allStockData = [];
+        querySnapshot.forEach((doc) => {
+            allStockData.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+        
+        filterAndDisplayData();
+    } catch (error) {
+        console.error("Error loading data:", error);
+        stockTableBody.innerHTML = '<tr><td colspan="8" class="loading-text">Error loading data</td></tr>';
+    }
+}
+
+// Filter and Display Data
+function filterAndDisplayData() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const kategoriFilter = filterKategori.value;
+    
+    let filteredData = allStockData;
+    
+    if (searchTerm) {
+        filteredData = filteredData.filter(item => 
+            item.nama.toLowerCase().includes(searchTerm)
+        );
+    }
+    
+    if (kategoriFilter) {
+        filteredData = filteredData.filter(item => 
+            item.kategori === kategoriFilter
+        );
+    }
+    
+    displayStockTable(filteredData);
+}
+
+// Display Stock Table
+function displayStockTable(data) {
+    if (data.length === 0) {
+        stockTableBody.innerHTML = '<tr><td colspan="8" class="loading-text">Tidak ada data</td></tr>';
+        return;
+    }
+    
+    stockTableBody.innerHTML = data.map((item, index) => {
+        const status = getStatusStok(item.stok);
+        const statusClass = status === "Aman" ? "status-safe" : (status === "Menipis" ? "status-warning" : "status-danger");
+        const hargaFormatted = formatRupiah(item.harga);
+        
+        return `
+            <tr>
+                <td>${index + 1}</td>
+                <td><strong>${item.nama}</strong></td>
+                <td>${item.kategori}</td>
+                <td>${item.stok}</td>
+                <td>${item.satuan}</td>
+                <td>${hargaFormatted}</td>
+                <td><span class="status-badge ${statusClass}">${status}</span></td>
+                <td class="action-buttons">
+                    <button class="btn-edit" onclick="editStock('${item.id}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-delete" onclick="confirmDelete('${item.id}', '${item.nama}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function getStatusStok(stok) {
+    if (stok <= 5) return "Kritis";
+    if (stok <= 15) return "Menipis";
+    return "Aman";
+}
+
+function formatRupiah(angka) {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0
+    }).format(angka);
+}
+
+// Add or Edit Stock
+stockForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    
+    const namaBahan = document.getElementById("namaBahan").value;
+    const kategori = document.getElementById("kategori").value;
+    const stok = parseInt(document.getElementById("stok").value);
+    const satuan = document.getElementById("satuan").value;
+    const harga = parseInt(document.getElementById("harga").value);
+    
+    if (!namaBahan || !kategori || !stok || !satuan || !harga) {
+        alert("Mohon lengkapi semua data!");
+        return;
+    }
+    
+    try {
+        if (currentEditId) {
+            // Update
+            const stockDoc = doc(db, "bahanMakanan", currentEditId);
+            await updateDoc(stockDoc, {
+                nama: namaBahan,
+                kategori: kategori,
+                stok: stok,
+                satuan: satuan,
+                harga: harga,
+                updatedAt: new Date()
+            });
+            alert("Data berhasil diupdate!");
+            cancelEdit();
+        } else {
+            // Add
+            await addDoc(stockCollection, {
+                nama: namaBahan,
+                kategori: kategori,
+                stok: stok,
+                satuan: satuan,
+                harga: harga,
+                createdAt: new Date()
+            });
+            alert("Data berhasil ditambahkan!");
+        }
+        
+        stockForm.reset();
+        loadStockData();
+        loadDashboard();
+        loadKategoriStats();
+    } catch (error) {
+        console.error("Error saving data:", error);
+        alert("Terjadi kesalahan!");
+    }
+});
+
+// Edit Function
+window.editStock = async (id) => {
+    const item = allStockData.find(data => data.id === id);
+    if (item) {
+        currentEditId = id;
+        document.getElementById("namaBahan").value = item.nama;
+        document.getElementById("kategori").value = item.kategori;
+        document.getElementById("stok").value = item.stok;
+        document.getElementById("satuan").value = item.satuan;
+        document.getElementById("harga").value = item.harga;
+        formTitle.innerHTML = '<i class="fas fa-edit"></i> Edit Bahan';
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Bahan';
+        cancelEditBtn.style.display = "block";
+        
+        // Scroll to form
+        document.querySelector(".form-card").scrollIntoView({ behavior: "smooth" });
+    }
+};
+
+function cancelEdit() {
+    currentEditId = null;
+    stockForm.reset();
+    formTitle.innerHTML = '<i class="fas fa-plus-circle"></i> Tambah Bahan Baru';
+    submitBtn.innerHTML = '<i class="fas fa-save"></i> Simpan Bahan';
+    cancelEditBtn.style.display = "none";
+}
+
+cancelEditBtn.addEventListener("click", cancelEdit);
+
+// Delete Function
+window.confirmDelete = (id, nama) => {
+    currentDeleteId = id;
+    document.getElementById("deleteNama").innerText = nama;
+    document.getElementById("deleteModal").style.display = "flex";
+};
+
+window.closeDeleteModal = () => {
+    document.getElementById("deleteModal").style.display = "none";
+    currentDeleteId = null;
+};
+
+document.getElementById("confirmDeleteBtn").addEventListener("click", async () => {
+    if (currentDeleteId) {
+        try {
+            await deleteDoc(doc(db, "bahanMakanan", currentDeleteId));
+            alert("Data berhasil dihapus!");
+            closeDeleteModal();
+            loadStockData();
+            loadDashboard();
+            loadKategoriStats();
+        } catch (error) {
+            console.error("Error deleting:", error);
+            alert("Gagal menghapus data!");
+        }
+    }
+});
+
+// Load Dashboard
+async function loadDashboard() {
+    try {
+        const querySnapshot = await getDocs(stockCollection);
+        const stocks = [];
+        querySnapshot.forEach((doc) => {
+            stocks.push({ id: doc.id, ...doc.data() });
+        });
+        
+        // Total Bahan
+        document.getElementById("totalBahan").innerText = stocks.length;
+        
+        // Stok Menipis (<=15)
+        const lowStock = stocks.filter(item => item.stok <= 15).length;
+        document.getElementById("stokMenipis").innerText = lowStock;
+        
+        // Total Kategori Unik
+        const uniqueCategories = [...new Set(stocks.map(item => item.kategori))];
+        document.getElementById("totalKategori").innerText = uniqueCategories.length;
+        
+        // Chart Data
+        const kategoriCount = {};
+        stocks.forEach(item => {
+            kategoriCount[item.kategori] = (kategoriCount[item.kategori] || 0) + 1;
+        });
+        
+        updateChart(kategoriCount);
+        
+        // Recent Items (5 terbaru)
+        const recentItems = stocks.slice(-5).reverse();
+        const recentList = document.getElementById("recentList");
+        recentList.innerHTML = recentItems.map(item => `
+            <div class="recent-item">
+                <span><strong>${item.nama}</strong> - ${item.stok} ${item.satuan}</span>
+                <span class="status-badge ${getStatusStok(item.stok) === 'Aman' ? 'status-safe' : (getStatusStok(item.stok) === 'Menipis' ? 'status-warning' : 'status-danger')}">
+                    ${getStatusStok(item.stok)}
+                </span>
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        console.error("Error loading dashboard:", error);
+    }
+}
+
+function updateChart(kategoriCount) {
+    const ctx = document.getElementById('kategoriChart').getContext('2d');
+    
+    if (kategoriChart) {
+        kategoriChart.destroy();
+    }
+    
+    kategoriChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys(kategoriCount),
+            datasets: [{
+                data: Object.values(kategoriCount),
+                backgroundColor: [
+                    '#667eea', '#f093fb', '#4facfe', '#43e97b', '#fa709a', '#fee140'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// Load Kategori Stats
+async function loadKategoriStats() {
+    try {
+        const querySnapshot = await getDocs(stockCollection);
+        const kategoriCount = {};
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            kategoriCount[data.kategori] = (kategoriCount[data.kategori] || 0) + 1;
+        });
+        
+        document.getElementById("countSayuran").innerHTML = `${kategoriCount["Sayuran"] || 0} bahan`;
+        document.getElementById("countBeras").innerHTML = `${kategoriCount["Beras"] || 0} bahan`;
+        document.getElementById("countDaging").innerHTML = `${kategoriCount["Daging"] || 0} bahan`;
+        document.getElementById("countBumbu").innerHTML = `${kategoriCount["Bumbu"] || 0} bahan`;
+        document.getElementById("countMinuman").innerHTML = `${kategoriCount["Minuman"] || 0} bahan`;
+        document.getElementById("countSusu").innerHTML = `${kategoriCount["Susu"] || 0} bahan`;
+    } catch (error) {
+        console.error("Error loading kategori stats:", error);
+    }
+}
+
+// Search and Filter Events
+searchInput.addEventListener("input", filterAndDisplayData);
+filterKategori.addEventListener("change", filterAndDisplayData);
+
+// Click kategori card to filter
+document.querySelectorAll(".kategori-card").forEach(card => {
+    card.addEventListener("click", () => {
+        const kategori = card.dataset.kategori;
+        // Switch to stock page
+        document.querySelector(".nav-item[data-page='stock']").click();
+        // Set filter
+        filterKategori.value = kategori;
+        filterAndDisplayData();
+    });
+});
+
+// Initial Load
+loadStockData();
+loadDashboard();
+loadKategoriStats();
+
+// Close modal when clicking outside
+window.onclick = (event) => {
+    const modal = document.getElementById("deleteModal");
+    if (event.target === modal) {
+        closeDeleteModal();
+    }
+};
